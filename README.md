@@ -14,11 +14,11 @@ Subir o backend, execute a classe PdvApplication com botão direto na mesma, "Ru
 Endpoints
 
 Item (produto/serviço): 
-Método GET, url: http://localhost:8080/item/listar
+Tipo requisição GET, url: http://localhost:8080/item/listar
 
-Lista um item por UUID, método GET, url: http://localhost:8080/item/{id}
+Lista um item por UUID, tipo requisição GET, url: http://localhost:8080/item/{id}
 
-Salvar um item novo, método POST, url: http://localhost:8080/item/
+Salvar um item novo, tipo requisição POST, url: http://localhost:8080/item/
 JSON a ser enviado:
 {
     "descricao": "REFRIGERANTE COCA COLA 2LT",
@@ -27,7 +27,7 @@ JSON a ser enviado:
     "situacao": true
 }
 
-Alterar um item existente, método PUT, url: http://localhost:8080/item/{id}
+Alterar um item existente, tipo requisição PUT, url: http://localhost:8080/item/{id}
 JSON a ser enviado:
 {
     "descricao": "BOLACHA NESTLE",
@@ -36,4 +36,4 @@ JSON a ser enviado:
     "situacao": false
 }
 
-Deletar um item, método DELETE, url: http://localhost:8080/item/{id}
+Deletar um item, tipo requisição DELETE, url: http://localhost:8080/item/{id}
