@@ -88,24 +88,35 @@ public class PedidoServiceImpl {
 		List<PedidoItemDTO> itens = itemRepository.consultarPorPedido(id);
 		
 		if (optional.isPresent()) {
-			if (form.getDesconto() > 0 && itens.size() == 0) {
+			if (form.getDesconto() > 0 
+					&& itens.size() < 0) {
 				return ResponseEntity.notFound().build();
 			}
 			
+			if (!form.getStatus().equals("ABERTO") && form.getDesconto() > 0) {
+				return ResponseEntity.notFound().build();
+			}
+			
+			double novoValorTotalDoPedido = 0.0d;
 			if (form.getDesconto() > 0 && itens.size() >= 0) {
-				double percentualDesconto = form.getDesconto() / 100,
-						valorDoDesconto = 0.0, totaMenosDesconto = 0.0;
+				double percentualDesconto = (Double.valueOf(form.getDesconto()) / 100d),
+						valorDoDesconto = 0.0, totalMenosDesconto = 0.0;
 				
 				for (PedidoItemDTO item : itens) {
 					valorDoDesconto = item.getTotal() * percentualDesconto;
-					totaMenosDesconto = form.getTotal() - valorDoDesconto;
-					itemRepository.atualizarDescontoItem(item.getQuantidade(), valorDoDesconto, totaMenosDesconto, item.getId());
+					totalMenosDesconto = item.getTotal() - valorDoDesconto;
+					itemRepository.atualizarDescontoItem(item.getQuantidade(), 
+														valorDoDesconto, 
+														totalMenosDesconto, 
+														item.getId());
+					novoValorTotalDoPedido += totalMenosDesconto;
 				}
 			}
 			
+			form.setTotal(novoValorTotalDoPedido == 0 ? form.getTotal() : novoValorTotalDoPedido);
 			Pedido pedido = form.atualizar(id, repository);
 			return ResponseEntity.ok(new PedidoDTO(pedido));
-		}
+		}		
 		
 		return ResponseEntity.notFound().build();
 	}
