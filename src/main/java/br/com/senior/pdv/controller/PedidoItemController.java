@@ -1,5 +1,6 @@
 package br.com.senior.pdv.controller;
 
+import java.util.List;
 import java.util.UUID;
 
 import javax.transaction.Transactional;
@@ -22,44 +23,44 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.util.UriComponentsBuilder;
 
-import br.com.senior.pdv.dto.PedidoDTO;
-import br.com.senior.pdv.form.AtualizacaoPedidoForm;
-import br.com.senior.pdv.form.PedidoForm;
-import br.com.senior.pdv.service.PedidoServiceImpl;
+import br.com.senior.pdv.dto.PedidoItemDTO;
+import br.com.senior.pdv.form.AtualizacaoPedidoItemForm;
+import br.com.senior.pdv.form.PedidoItemForm;
+import br.com.senior.pdv.service.PedidoItemServiceImpl;
 
 @RestController
-@RequestMapping("/pedido")
-public class PedidoController {
+@RequestMapping("/pedidoitem")
+public class PedidoItemController {
 
 	@Autowired
-	PedidoServiceImpl service;
+	PedidoItemServiceImpl service;
 	
 	@GetMapping("/listar")
-	public Page<PedidoDTO> listar(
+	public Page<PedidoItemDTO> listar(
 			@RequestParam(required = false) UUID id,
-			@PageableDefault(sort = "emissao", 
+			@PageableDefault(sort = "item_id", 
 							 direction = Direction.ASC,
 							 page = 0,
 							 size = 10) Pageable paginacao) {
-		return service.getPedidos(id, paginacao);
+		return service.getPedidoItens(id, paginacao);
 	}
 	
 	@GetMapping("/{id}")
-	public ResponseEntity<PedidoDTO> listarPorId(@PathVariable UUID id) {
-		return service.getById(id);
+	public ResponseEntity<List<PedidoItemDTO>> listarPorPedido(@PathVariable UUID id) {
+		return service.getByPedido(id);
 	}
 	
 	@PostMapping
 	@Transactional
-	public ResponseEntity<PedidoDTO> cadastrar(@RequestBody @Valid PedidoForm pedidoForm,
+	public ResponseEntity<PedidoItemDTO> cadastrar(@RequestBody @Valid PedidoItemForm pedidoItemForm,
 			UriComponentsBuilder uriBuilder) {
-		return service.cadastrar(pedidoForm, uriBuilder); 
+		return service.cadastrar(pedidoItemForm, uriBuilder); 
 	}
 	
 	@PutMapping("/{id}")
 	@Transactional
-	public ResponseEntity<PedidoDTO> atualizar(@PathVariable UUID id,
-			@RequestBody @Valid AtualizacaoPedidoForm form) {
+	public ResponseEntity<PedidoItemDTO> atualizar(@PathVariable UUID id,
+			@RequestBody @Valid AtualizacaoPedidoItemForm form) {
 		return service.atualizar(id, form);
 	}
 	

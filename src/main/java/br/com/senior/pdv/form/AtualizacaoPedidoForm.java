@@ -1,6 +1,5 @@
 package br.com.senior.pdv.form;
 
-import java.util.Date;
 import java.util.UUID;
 
 import javax.validation.constraints.NotEmpty;
@@ -9,13 +8,10 @@ import javax.validation.constraints.NotNull;
 import br.com.senior.pdv.modelo.Pedido;
 import br.com.senior.pdv.repository.PedidoRepository;
 
-public class PedidoForm {
-
+public class AtualizacaoPedidoForm {
+	
 	@NotNull
 	private long cpf;
-
-	@NotNull
-	private Date emissao;
 
 	private double total;
 	private int desconto;
@@ -27,12 +23,12 @@ public class PedidoForm {
 		return cpf;
 	}
 
-	public Date getEmissao() {
-		return emissao;
-	}
-
 	public double getTotal() {
 		return total;
+	}
+	
+	public void setTotal(double total) {
+		this.total = total;
 	}
 
 	public int getDesconto() {
@@ -48,7 +44,6 @@ public class PedidoForm {
 		
 		pedido.setCpf(cpf);
 		pedido.setDesconto(desconto);
-		pedido.setEmissao(emissao);
 		pedido.setStatus(status);
 		pedido.setTotal(total);
 		
@@ -59,7 +54,6 @@ public class PedidoForm {
 		Pedido pedido = repository.getReferenceById(id);
 		pedido.setCpf(cpf);
 		pedido.setDesconto(desconto);
-		pedido.setEmissao(emissao);
 		pedido.setStatus(status);
 		pedido.setTotal(total);
 		

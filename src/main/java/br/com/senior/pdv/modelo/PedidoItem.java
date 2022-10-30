@@ -39,6 +39,15 @@ public class PedidoItem {
 	
 	public PedidoItem() {}
 
+	public PedidoItem(UUID id, int quantidade, double total, double desconto, Item item, Pedido pedido) {
+		this.id = id;
+		this.quantidade = quantidade;
+		this.total = total;
+		this.desconto = desconto;
+		this.item = item;
+		this.pedido = pedido;
+	}
+
 	public UUID getId() {
 		return id;
 	}
