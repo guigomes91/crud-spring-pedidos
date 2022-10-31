@@ -18,7 +18,9 @@ import br.com.senior.pdv.dto.PedidoDTO;
 import br.com.senior.pdv.dto.PedidoItemDTO;
 import br.com.senior.pdv.form.AtualizacaoPedidoForm;
 import br.com.senior.pdv.form.PedidoForm;
+import br.com.senior.pdv.modelo.Item;
 import br.com.senior.pdv.modelo.Pedido;
+import br.com.senior.pdv.repository.ItemRepository;
 import br.com.senior.pdv.repository.PedidoItemRepository;
 import br.com.senior.pdv.repository.PedidoRepository;
 
@@ -26,10 +28,13 @@ import br.com.senior.pdv.repository.PedidoRepository;
 public class PedidoServiceImpl {
 
 	@Autowired
-	PedidoRepository repository;
+	PedidoRepository pedidoRepository;
 	
 	@Autowired
-	PedidoItemRepository itemRepository;
+	PedidoItemRepository pedidoItemRepository;
+	
+	@Autowired
+	ItemRepository itemRepository;
 	
 	/**
 	 * 
@@ -40,10 +45,10 @@ public class PedidoServiceImpl {
 	public Page<PedidoDTO> getPedidos(UUID id, Pageable paginacao) {
 		Page<Pedido> pedidos = null;
 		if (id == null) {
-			pedidos = repository.findAll(paginacao);
+			pedidos = pedidoRepository.findAll(paginacao);
 			return PedidoDTO.converter(pedidos);
 		} else {
-			pedidos = repository.findByIdPaginacao(id, paginacao);
+			pedidos = pedidoRepository.findByIdPaginacao(id, paginacao);
 			return PedidoDTO.converter(pedidos);
 		}
 	}
@@ -54,7 +59,7 @@ public class PedidoServiceImpl {
 	 * @return
 	 */
 	public ResponseEntity<PedidoDTO> getById(UUID id) {
-		Optional<Pedido> pedido = repository.findById(id);
+		Optional<Pedido> pedido = pedidoRepository.findById(id);
 		
 		if (pedido.isPresent()) {
 			return ResponseEntity.ok(new PedidoDTO(pedido.get()));
@@ -71,7 +76,7 @@ public class PedidoServiceImpl {
 	 */
 	public ResponseEntity<PedidoDTO> cadastrar(@Valid PedidoForm pedidoForm, UriComponentsBuilder uriBuilder) {
 		Pedido pedido = pedidoForm.converter();
-		repository.save(pedido);
+		pedidoRepository.save(pedido);
 		
 		URI uri = uriBuilder.path("/pedido/{id}").buildAndExpand(pedido.getId()).toUri();
 		return ResponseEntity.created(uri).body(new PedidoDTO(pedido)); 
@@ -84,8 +89,8 @@ public class PedidoServiceImpl {
 	 * @return
 	 */
 	public ResponseEntity<PedidoDTO> atualizar(UUID id, @Valid AtualizacaoPedidoForm form) {
-		Optional<Pedido> optional = repository.findById(id);
-		List<PedidoItemDTO> itens = itemRepository.consultarPorPedido(id);
+		Optional<Pedido> optional = pedidoRepository.findById(id);
+		List<PedidoItemDTO> itens = pedidoItemRepository.consultarPorPedido(id);
 		
 		if (optional.isPresent()) {
 			if (form.getDesconto() > 0 
@@ -97,24 +102,29 @@ public class PedidoServiceImpl {
 				return ResponseEntity.notFound().build();
 			}
 			
-			double novoValorTotalDoPedido = 0.0d;
+			double totalDeDesconto = 0.0d, totalDoPedido = form.getTotal();
 			if (form.getDesconto() > 0 && itens.size() >= 0) {
 				double percentualDesconto = (Double.valueOf(form.getDesconto()) / 100d),
 						valorDoDesconto = 0.0, totalMenosDesconto = 0.0;
 				
 				for (PedidoItemDTO item : itens) {
-					valorDoDesconto = item.getTotal() * percentualDesconto;
-					totalMenosDesconto = item.getTotal() - valorDoDesconto;
-					itemRepository.atualizarDescontoItem(item.getQuantidade(), 
-														valorDoDesconto, 
-														totalMenosDesconto, 
-														item.getId());
-					novoValorTotalDoPedido += totalMenosDesconto;
+					Item tipoItem = itemRepository.getReferenceById(item.getIdProduto());
+					
+					if (tipoItem.getTipo() == 1) {
+						valorDoDesconto = item.getTotal() * percentualDesconto;
+						totalMenosDesconto = item.getTotal() - valorDoDesconto;
+						pedidoItemRepository.atualizarDescontoItem(item.getQuantidade(), 
+															valorDoDesconto, 
+															totalMenosDesconto, 
+															item.getId());
+						totalDeDesconto += valorDoDesconto;
+					}
 				}
 			}
 			
-			form.setTotal(novoValorTotalDoPedido == 0 ? form.getTotal() : novoValorTotalDoPedido);
-			Pedido pedido = form.atualizar(id, repository);
+			totalDoPedido = totalDoPedido - totalDeDesconto;
+			form.setTotal(totalDeDesconto == 0 ? form.getTotal() : totalDoPedido);
+			Pedido pedido = form.atualizar(id, pedidoRepository);
 			return ResponseEntity.ok(new PedidoDTO(pedido));
 		}		
 		
@@ -127,10 +137,10 @@ public class PedidoServiceImpl {
 	 * @return
 	 */
 	public ResponseEntity<?> deletar(UUID id) {
-		Optional<Pedido> optional = repository.findById(id);
+		Optional<Pedido> optional = pedidoRepository.findById(id);
 		
 		if (optional.isPresent()) {
-			repository.deleteById(id);
+			pedidoRepository.deleteById(id);
 			return ResponseEntity.ok().build();
 		}
 		

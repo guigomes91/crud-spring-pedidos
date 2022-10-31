@@ -24,4 +24,7 @@ public interface PedidoItemRepository extends JpaRepository<PedidoItem, UUID>{
 	@Modifying
 	@Query("update PedidoItem pi set pi.quantidade = ?1, pi.desconto = ?2, pi.total = ?3 where pi.id = ?4")
 	void atualizarDescontoItem(int quantidade, double desconto, double total, UUID id);
+
+	@Query(value = "select cast(pi.item_id as varchar) as id from PedidoItem pi where pi.item_id = ?1 limit 1", nativeQuery = true)
+	String itemEmPedido(UUID id);
 }

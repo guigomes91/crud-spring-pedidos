@@ -71,6 +71,10 @@ public class Item {
 		this.valor = valor;
 	}
 	
+	public boolean getSituacao() {
+		return situacao;
+	}
+	
 	public void setSituacao(boolean situacao) {
 		this.situacao = situacao;
 	}

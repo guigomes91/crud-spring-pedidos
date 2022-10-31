@@ -17,8 +17,10 @@ import org.springframework.web.util.UriComponentsBuilder;
 import br.com.senior.pdv.dto.PedidoItemDTO;
 import br.com.senior.pdv.form.AtualizacaoPedidoItemForm;
 import br.com.senior.pdv.form.PedidoItemForm;
+import br.com.senior.pdv.modelo.Item;
 import br.com.senior.pdv.modelo.Pedido;
 import br.com.senior.pdv.modelo.PedidoItem;
+import br.com.senior.pdv.repository.ItemRepository;
 import br.com.senior.pdv.repository.PedidoItemRepository;
 import br.com.senior.pdv.repository.PedidoRepository;
 
@@ -30,6 +32,9 @@ public class PedidoItemServiceImpl {
 	
 	@Autowired
 	PedidoRepository pedidoRepository;
+	
+	@Autowired
+	ItemRepository itemRepository;
 
 	/**
 	 * 
@@ -70,12 +75,30 @@ public class PedidoItemServiceImpl {
 	 * @return Retorno da requisição e o corpo com o PedidoItemDTO
 	 */
 	public ResponseEntity<PedidoItemDTO> cadastrar(@Valid PedidoItemForm pedidoItemForm,
-			UriComponentsBuilder uriBuilder) {
-		PedidoItem pedidoItem = pedidoItemForm.converter();
-		repository.save(pedidoItem);
+		UriComponentsBuilder uriBuilder) {
+		Optional<Pedido> pedido = pedidoRepository.findById(pedidoItemForm.getIdPedido());
+		Optional<Item> item = itemRepository.findById(pedidoItemForm.getIdProduto());
 		
-		URI uri = uriBuilder.path("/pedidoitem/{id}").buildAndExpand(pedidoItem.getId()).toUri();
-		return ResponseEntity.created(uri).body(new PedidoItemDTO(pedidoItem));
+		if (item.isPresent()) {
+			Item it = item.get();
+			
+			if (!it.getSituacao()) {
+				return ResponseEntity.notFound().build();
+			}
+		}
+		
+		if (pedido.isPresent()) {
+			PedidoItem pedidoItem = pedidoItemForm.converter();
+			repository.save(pedidoItem);
+			
+			double totalPedido = pedido.get().getTotal() + pedidoItem.getTotal();
+			pedidoRepository.atualizarPedido(totalPedido, pedidoItemForm.getIdPedido());
+			
+			URI uri = uriBuilder.path("/pedidoitem/{id}").buildAndExpand(pedidoItem.getId()).toUri();
+			return ResponseEntity.created(uri).body(new PedidoItemDTO(pedidoItem));
+		}
+		
+		return ResponseEntity.notFound().build();
 	}
 
 	/**

@@ -16,12 +16,16 @@ import br.com.senior.pdv.dto.ItemDTO;
 import br.com.senior.pdv.form.ItemForm;
 import br.com.senior.pdv.modelo.Item;
 import br.com.senior.pdv.repository.ItemRepository;
+import br.com.senior.pdv.repository.PedidoItemRepository;
 
 @Service
 public class ItemServiceImpl {
 
 	@Autowired
 	ItemRepository repository;
+	
+	@Autowired
+	PedidoItemRepository pedidoItemRepository;
 	
 	/**
 	 * 
@@ -94,8 +98,9 @@ public class ItemServiceImpl {
 	 */
 	public ResponseEntity<?> deletar(@PathVariable UUID id) {
 		Optional<Item> optional = repository.findById(id);
+		String itemEmPedido = pedidoItemRepository.itemEmPedido(id);
 		
-		if (optional.isPresent()) {
+		if (optional.isPresent() && itemEmPedido.isEmpty()) {
 			repository.deleteById(id);
 			return ResponseEntity.ok().build();
 		}
