@@ -47,16 +47,11 @@ public class ItemServiceImpl {
 	/**
 	 * 
 	 * @param id será consultado o item em especifíco
-	 * @return ok ou não encontrado
+	 * @return Item
 	 */
-	public ResponseEntity<ItemDTO> getById(UUID id) {
+	public Optional<Item> getById(UUID id) {
 		Optional<Item> item = repository.findById(id);
-		
-		if (item.isPresent()) {
-			return ResponseEntity.ok(new ItemDTO(item.get()));
-		}
-		
-		return ResponseEntity.notFound().build();
+		return item;
 	}
 	
 	/**
@@ -80,15 +75,15 @@ public class ItemServiceImpl {
 	 * @param form ItemForm dados enviados pela requisição
 	 * @return
 	 */
-	public ResponseEntity<ItemDTO> atualizar(UUID id, ItemForm form) {
+	public ItemDTO atualizar(UUID id, ItemForm form) {
 		Optional<Item> optional = repository.findById(id);
 		
 		if (optional.isPresent()) {
 			Item item = form.atualizar(id, repository);
-			return ResponseEntity.ok(new ItemDTO(item));
+			return new ItemDTO(item);
 		}
 		
-		return ResponseEntity.notFound().build();
+		return null;
 	}
 
 	/**

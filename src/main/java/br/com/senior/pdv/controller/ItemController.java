@@ -1,5 +1,6 @@
 package br.com.senior.pdv.controller;
 
+import java.util.Optional;
 import java.util.UUID;
 
 import javax.transaction.Transactional;
@@ -24,6 +25,7 @@ import org.springframework.web.util.UriComponentsBuilder;
 
 import br.com.senior.pdv.dto.ItemDTO;
 import br.com.senior.pdv.form.ItemForm;
+import br.com.senior.pdv.modelo.Item;
 import br.com.senior.pdv.service.ItemServiceImpl;
 
 @RestController
@@ -45,7 +47,13 @@ public class ItemController {
 		
 	@GetMapping("/{id}")
 	public ResponseEntity<ItemDTO> listarPorId(@PathVariable UUID id) {
-		return service.getById(id);
+		Optional<Item> item = service.getById(id);
+		
+		if (item.isPresent()) {
+			return ResponseEntity.ok(new ItemDTO(item.get()));
+		}
+		
+		return ResponseEntity.notFound().build();
 	}
 	
 	@PostMapping
@@ -59,7 +67,13 @@ public class ItemController {
 	@Transactional
 	public ResponseEntity<ItemDTO> atualizar(@PathVariable UUID id,
 			@RequestBody @Valid ItemForm form) {
-		return service.atualizar(id, form);
+		ItemDTO itemDTO = service.atualizar(id, form);
+		
+		if (itemDTO != null) {
+			return ResponseEntity.ok(itemDTO);
+		}
+		
+		return ResponseEntity.notFound().build();
 	}
 	
 	@DeleteMapping("/{id}")

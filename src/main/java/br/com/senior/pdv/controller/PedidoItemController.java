@@ -47,6 +47,10 @@ public class PedidoItemController {
 	
 	@GetMapping("/{id}")
 	public ResponseEntity<List<PedidoItemDTO>> listarPorPedido(@PathVariable UUID id) {
+		if (id == null) {
+			return ResponseEntity.badRequest().build();
+		}
+		
 		return service.getByPedido(id);
 	}
 	

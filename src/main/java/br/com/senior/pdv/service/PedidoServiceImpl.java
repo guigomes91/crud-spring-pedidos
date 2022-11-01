@@ -99,10 +99,12 @@ public class PedidoServiceImpl {
 			}
 			
 			if (!form.getStatus().equals("ABERTO") && form.getDesconto() > 0) {
-				return ResponseEntity.notFound().build();
+				return ResponseEntity.badRequest().build();
 			}
 			
-			double totalDeDesconto = 0.0d, totalDoPedido = form.getTotal();
+			double totalDeDesconto = 0.0d, 
+				   totalDoPedido = form.getTotal();
+			
 			if (form.getDesconto() > 0 && itens.size() >= 0) {
 				double percentualDesconto = (Double.valueOf(form.getDesconto()) / 100d),
 						valorDoDesconto = 0.0, totalMenosDesconto = 0.0;

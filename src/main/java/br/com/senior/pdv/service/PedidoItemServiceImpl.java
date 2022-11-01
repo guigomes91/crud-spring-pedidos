@@ -79,14 +79,22 @@ public class PedidoItemServiceImpl {
 		Optional<Pedido> pedido = pedidoRepository.findById(pedidoItemForm.getIdPedido());
 		Optional<Item> item = itemRepository.findById(pedidoItemForm.getIdProduto());
 		
+		/**
+		 * Se existe o item cadastrado e a situação é diferente de true
+		 * Não permite inserir o item no pedido
+		 */
 		if (item.isPresent()) {
 			Item it = item.get();
 			
 			if (!it.getSituacao()) {
-				return ResponseEntity.notFound().build();
+				return ResponseEntity.badRequest().build();
 			}
 		}
 		
+		/**
+		 * Se existe o pedido cadastrado
+		 * Atualiza o valor total do pedido após inserir o item
+		 */
 		if (pedido.isPresent()) {
 			PedidoItem pedidoItem = pedidoItemForm.converter();
 			repository.save(pedidoItem);

@@ -22,6 +22,15 @@ public class ItemForm {
 	@NotNull
 	private boolean situacao;
 	
+	public ItemForm() {}
+	
+	public ItemForm(String descricao, int tipo, double valor, boolean situacao) {
+		this.descricao = descricao;
+		this.tipo = tipo;
+		this.valor = valor;
+		this.situacao = situacao;
+	}
+	
 	public Item converter() {
 		return new Item(descricao, valor, tipo, situacao);
 	}
