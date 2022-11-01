@@ -79,6 +79,12 @@ public class ItemController {
 	@DeleteMapping("/{id}")
 	@Transactional
 	public ResponseEntity<?> deletar(@PathVariable UUID id) {
-		return service.deletar(id);
+		boolean status = service.deletar(id);
+		
+		if (status) {
+			return ResponseEntity.ok().build();
+		}
+		
+		return ResponseEntity.badRequest().build();
 	}
 }

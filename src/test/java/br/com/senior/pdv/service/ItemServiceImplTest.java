@@ -1,12 +1,15 @@
 package br.com.senior.pdv.service;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.Optional;
 import java.util.UUID;
 
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -30,7 +33,7 @@ public class ItemServiceImplTest {
 	private ItemRepository repository;
 	
 	@Mock
-	PedidoItemRepository pedidoItemRepository;
+	private PedidoItemRepository pedidoItemRepository;
 	
 	@Test
 	void deveriaRetornarUmItemComIdCadastrado() {
@@ -67,5 +70,29 @@ public class ItemServiceImplTest {
 		ItemDTO itemDTO = service.atualizar(uuid, form);
 		assertNotNull(itemDTO);
 		assertEquals(itemDTO.getDescricao(), form.getDescricao());
+	}
+	
+	@Test
+	@DisplayName("Não deleta o produto caso esteja em um pedido")
+	void naoDeveriaDeletarItemNoPedido() {
+		UUID uuid = UUID.fromString("0ef8a0ea-e716-41ef-8a7e-c256bde8468c");
+		Optional<Item> opcional = Optional.of(new Item());
+		Mockito.when(repository.findById(uuid)).thenReturn(opcional);
+		
+		Mockito.when(pedidoItemRepository.itemEmPedido(uuid)).thenReturn("0ef8a0ea-e716-41ef-8a7e-c256bde8468c");
+		
+		assertFalse(service.deletar(uuid));
+	}
+	
+	@Test
+	@DisplayName("Deleta o produto caso não esteja em nenhum pedido")
+	void deveriaDeletarItemSemPedido() {
+		UUID uuid = UUID.fromString("0ef8a0ea-e716-41ef-8a7e-c256bde8468c");
+		Optional<Item> opcional = Optional.of(new Item());
+		Mockito.when(repository.findById(uuid)).thenReturn(opcional);
+		
+		Mockito.when(pedidoItemRepository.itemEmPedido(uuid)).thenReturn("");
+		
+		assertTrue(service.deletar(uuid));
 	}
 }

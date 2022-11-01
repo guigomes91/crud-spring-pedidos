@@ -4,13 +4,14 @@ import java.util.UUID;
 
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Size;
 
 import br.com.senior.pdv.modelo.Item;
 import br.com.senior.pdv.repository.ItemRepository;
 
 public class ItemForm {
 
-	@NotNull @NotEmpty
+	@NotNull @NotEmpty @Size(min = 3, max = 60)
 	private String descricao;
 	
 	@NotNull

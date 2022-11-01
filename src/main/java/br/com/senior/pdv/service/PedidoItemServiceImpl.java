@@ -1,6 +1,5 @@
 package br.com.senior.pdv.service;
 
-import java.net.URI;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -12,11 +11,9 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
-import org.springframework.web.util.UriComponentsBuilder;
 
 import br.com.senior.pdv.dto.PedidoItemDTO;
 import br.com.senior.pdv.form.AtualizacaoPedidoItemForm;
-import br.com.senior.pdv.form.PedidoItemForm;
 import br.com.senior.pdv.modelo.Item;
 import br.com.senior.pdv.modelo.Pedido;
 import br.com.senior.pdv.modelo.PedidoItem;
@@ -74,20 +71,19 @@ public class PedidoItemServiceImpl {
 	 * @param uriBuilder
 	 * @return Retorno da requisição e o corpo com o PedidoItemDTO
 	 */
-	public ResponseEntity<PedidoItemDTO> cadastrar(@Valid PedidoItemForm pedidoItemForm,
-		UriComponentsBuilder uriBuilder) {
-		Optional<Pedido> pedido = pedidoRepository.findById(pedidoItemForm.getIdPedido());
-		Optional<Item> item = itemRepository.findById(pedidoItemForm.getIdProduto());
+	public PedidoItemDTO cadastrar(PedidoItem pedidoItem) {
+		Optional<Pedido> pedido = pedidoRepository.findById(pedidoItem.getPedido().getId());
+		Optional<Item> item = itemRepository.findById(pedidoItem.getItem().getId());
 		
 		/**
-		 * Se existe o item cadastrado e a situação é diferente de true
+		 * Se existe o item cadastrado e a situação é inativa
 		 * Não permite inserir o item no pedido
 		 */
 		if (item.isPresent()) {
 			Item it = item.get();
 			
 			if (!it.getSituacao()) {
-				return ResponseEntity.badRequest().build();
+				return null;
 			}
 		}
 		
@@ -96,17 +92,15 @@ public class PedidoItemServiceImpl {
 		 * Atualiza o valor total do pedido após inserir o item
 		 */
 		if (pedido.isPresent()) {
-			PedidoItem pedidoItem = pedidoItemForm.converter();
 			repository.save(pedidoItem);
 			
 			double totalPedido = pedido.get().getTotal() + pedidoItem.getTotal();
-			pedidoRepository.atualizarPedido(totalPedido, pedidoItemForm.getIdPedido());
-			
-			URI uri = uriBuilder.path("/pedidoitem/{id}").buildAndExpand(pedidoItem.getId()).toUri();
-			return ResponseEntity.created(uri).body(new PedidoItemDTO(pedidoItem));
+			pedidoRepository.atualizarPedido(totalPedido, pedidoItem.getPedido().getId());
+
+			return new PedidoItemDTO(pedidoItem);
 		}
-		
-		return ResponseEntity.notFound().build();
+
+		return null;
 	}
 
 	/**

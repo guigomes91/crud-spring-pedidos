@@ -9,7 +9,6 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
-import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import br.com.senior.pdv.dto.ItemDTO;
@@ -91,15 +90,15 @@ public class ItemServiceImpl {
 	 * @param id do produto ao qual será deletado
 	 * @return
 	 */
-	public ResponseEntity<?> deletar(@PathVariable UUID id) {
+	public boolean deletar(UUID id) {
 		Optional<Item> optional = repository.findById(id);
 		String itemEmPedido = pedidoItemRepository.itemEmPedido(id);
 		
 		if (optional.isPresent() && itemEmPedido.isEmpty()) {
 			repository.deleteById(id);
-			return ResponseEntity.ok().build();
+			return true;
 		}
 		
-		return ResponseEntity.notFound().build();
+		return false;
 	}
 }
