@@ -10,7 +10,7 @@ Backend de pedidos utilizando Spring, Java 8+, Maven, Postgres, JPA e REST com J
     <li>Subir o backend, execute a classe PdvApplication com botão direto na mesma, **"Run As" -> "Java Application"** no Eclipse.</li>
 </ol>
 
-** Endpoints **
+# Endpoints
 
 ### Item
 
