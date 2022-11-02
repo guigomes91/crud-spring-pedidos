@@ -3,15 +3,12 @@ Backend de pedidos utilizando Spring, Java 8+, Maven, Postgres, JPA e REST com J
 
 ## Branch MASTER
 
-Como utilizar
+<h3>Como subir o backend</h3>
 
-1º passo
-
-Crie um banco de dados no postgres chamado "pdv"
-
-2º passo
-
-Subir o backend, execute a classe PdvApplication com botão direto na mesma, **"Run As" -> "Java Application"** no Eclipse.
+<ol>
+    <li>Criar um banco de dados no postgres chamado **pdv**. Alterar o arquivo **application.properties** e alterar o parâmetro         <b>spring.datasource.password=postgres</b> para a senha do banco de dados.</li>
+    <li>Subir o backend, execute a classe PdvApplication com botão direto na mesma, **"Run As" -> "Java Application"** no Eclipse.</li>
+</ol>
 
 ** Endpoints **
 
@@ -75,9 +72,9 @@ JSON a ser enviado:
 
 <h3>Regras ao alterar desconto do pedido</h3>
 <ul>
-    <li>Se informado o desconto e não ouver itens no pedido o retorno **400 Bad Request** será lançado.</li>
-    <li>O desconto só será realizado com situação do Pedido em "ABERTO" caso contrário o retorno **400 Bad Request** será lançado.</li>
-    <li>Se desconto maior que 100% o retorno **400 Bad Request** será lançado.</li>
+    <li>Se informado o desconto e não ouver itens no pedido o retorno <b>400 Bad Request</b> será lançado.</li>
+    <li>O desconto só será realizado com situação do Pedido em "ABERTO" caso contrário o retorno <b>400 Bad Request</b> será lançado.</li>
+    <li>Se desconto maior que 100% o retorno <b>400 Bad Request</b> será lançado.</li>
     <li>O desconto só é aplicado em itens do tipo 1 (produto).</li>
 </ul>
 
@@ -102,8 +99,8 @@ JSON a ser enviado:
 
 <h3>Regras ao inserir item no pedido</h3>
 <ul>
-    <li>Não é possível inserir item não existente (quando informado uuid errado), caso contrário será lançado **400 Bad Request**.</li>
-    <li>Não é possível inserir item desativado, caso contrário o retorno **400 Bad Request** será lançado.</li>
+    <li>Não é possível inserir item não existente (quando informado uuid errado), caso contrário será lançado <b>400 Bad Request</b>.</li>
+    <li>Não é possível inserir item desativado, caso contrário o retorno <b>400 Bad Request</b> será lançado.</li>
 </ul>
 
 **Alterar** um item do pedido, PUT url: http://localhost:8080/pedidoitem/{id}
