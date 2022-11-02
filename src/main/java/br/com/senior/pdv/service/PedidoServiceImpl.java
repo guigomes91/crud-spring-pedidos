@@ -1,5 +1,6 @@
 package br.com.senior.pdv.service;
 
+import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -71,6 +72,10 @@ public class PedidoServiceImpl {
 	 * @return Pedido
 	 */
 	public Pedido cadastrar(PedidoForm pedidoForm) {
+		if (pedidoForm.getEmissao() == null) {
+			pedidoForm.setEmissao(new Date());
+		}
+		
 		Pedido pedido = pedidoForm.converter();
 		pedidoRepository.save(pedido);
 		
@@ -93,7 +98,7 @@ public class PedidoServiceImpl {
 		 */
 		if (optional.isPresent()) {
 			if (form.getDesconto() > 0 
-					&& itens.isEmpty()) {
+					&& itens == null || itens.isEmpty()) {
 				return null;
 			}
 			
@@ -117,7 +122,7 @@ public class PedidoServiceImpl {
 						valorDoDesconto = 0.0, totalMenosDesconto = 0.0;
 				
 				for (PedidoItemDTO item : itens) {
-					Item tipoItem = itemRepository.getReferenceById(item.getIdProduto());
+					Item tipoItem = itemRepository.getItem(item.getIdProduto());
 					
 					if (tipoItem.getTipo() == 1) {
 						valorDoDesconto = item.getTotal() * percentualDesconto;

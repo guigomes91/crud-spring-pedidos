@@ -31,7 +31,6 @@ public class PedidoItemServiceImpl {
 	ItemRepository itemRepository;
 
 	/**
-	 * 
 	 * @param id do item
 	 * @param paginacao
 	 * @return
@@ -73,6 +72,10 @@ public class PedidoItemServiceImpl {
 		Optional<Pedido> pedido = pedidoRepository.findById(pedidoItem.getPedido().getId());
 		Optional<Item> item = itemRepository.findById(pedidoItem.getItem().getId());
 		
+		if (!item.isPresent()) {
+			return null;
+		}
+		
 		/**
 		 * Se existe o item cadastrado e a situação é inativa
 		 * Não permite inserir o item no pedido
@@ -103,13 +106,17 @@ public class PedidoItemServiceImpl {
 
 	/**
 	 * 
-	 * @param id do pedidoitem
+	 * @param id da tablea PedidoItem
 	 * @param form
 	 * @return
 	 */
 	public PedidoItemDTO atualizar(UUID id, AtualizacaoPedidoItemForm form) {
 		Optional<PedidoItem> optional = repository.findById(id);
 		
+		/**
+		 * Se estiver presente o registro pelo UUID da tabela, 
+		 * então atualiza os valores do item
+		 */
 		if (optional.isPresent()) {
 			PedidoItem pedidoItem = form.atualizar(id, repository);
 			return new PedidoItemDTO(pedidoItem);
@@ -120,13 +127,20 @@ public class PedidoItemServiceImpl {
 
 	/**
 	 * 
-	 * @param id
-	 * @return
+	 * @param id do PedidoItem
+	 * @return true or false
 	 */
 	public boolean deletar(UUID id) {
-		Optional<PedidoItem> optional = repository.findById(id);
+		Optional<PedidoItem> pedidoItem = repository.findById(id);
+		PedidoItem pi = pedidoItem.get();
 		
-		if (optional.isPresent()) {
+		Optional<Pedido> pedido = pedidoRepository.findById(pi.getPedido().getId());
+		Pedido p = pedido.get();
+		
+		if (pedidoItem.isPresent() && p.getStatus().equals("ABERTO")) {
+			double totalPedido = p.getTotal() - pi.getTotal();
+			pedidoRepository.atualizarPedido(totalPedido, p.getId());
+			
 			repository.deleteById(id);
 			return true;
 		}

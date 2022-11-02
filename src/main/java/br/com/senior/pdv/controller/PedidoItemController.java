@@ -92,7 +92,7 @@ public class PedidoItemController {
 		boolean retorno = service.deletar(id);
 		
 		if (retorno) {
-			ResponseEntity.ok().build();
+			return ResponseEntity.ok().build();
 		}
 		
 		return ResponseEntity.badRequest().build();

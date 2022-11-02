@@ -13,4 +13,7 @@ public interface ItemRepository extends JpaRepository<Item, UUID> {
 	
 	@Query("select i from Item i where i.id = :id")
 	Page<Item> findByIdPaginacao(UUID id, Pageable paginacao);
+	
+	@Query("select i from Item i where i.id = ?1")
+	Item getItem(UUID id);
 }

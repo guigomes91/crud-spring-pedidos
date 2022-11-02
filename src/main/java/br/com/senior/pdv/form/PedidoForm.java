@@ -14,7 +14,6 @@ public class PedidoForm {
 	@NotNull
 	private long cpf;
 
-	@NotNull
 	private Date emissao;
 
 	private double total;
@@ -22,6 +21,21 @@ public class PedidoForm {
 	
 	@NotNull @NotEmpty
 	private String status;
+	
+	public PedidoForm() {}
+
+	public PedidoForm(@NotNull long cpf, Date emissao, double total, int desconto,
+			@NotNull @NotEmpty String status) {
+		this.cpf = cpf;
+		this.emissao = emissao;
+		this.total = total;
+		this.desconto = desconto;
+		this.status = status;
+	}
+
+	public void setEmissao(Date emissao) {
+		this.emissao = emissao;
+	}
 
 	public long getCpf() {
 		return cpf;

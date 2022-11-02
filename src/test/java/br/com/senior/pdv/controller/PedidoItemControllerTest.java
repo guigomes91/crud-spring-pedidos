@@ -61,25 +61,6 @@ public class PedidoItemControllerTest {
 			.statusCode(HttpStatus.OK.value());
 	}
 	
-	/*@Test
-	public void deveRetornarNaoEncontrado_QuandoBuscarItensDoPedido() throws Exception {
-		UUID uuid = UUID.fromString("0ef8a0ea-e716-41ef-8a7e-c256bde8468c");
-		
-		List<PedidoItemDTO> result = new ArrayList<>();
-		result.add(new PedidoItemDTO());
-		result.add(new PedidoItemDTO());
-		result.add(new PedidoItemDTO());
-		
-		Mockito.when(pedidoItemService.getByPedido(uuid)).thenReturn(null);
-		
-		RestAssuredMockMvc.given()
-			.accept(ContentType.JSON)
-		.when()
-			.get("/pedidoitem/{id}", uuid)
-		.then() 
-			.statusCode(HttpStatus.NOT_FOUND.value());
-	}*/
-	
 	@Test
 	public void deveRetornarNotAllowed_QuandoBuscarItensDoPedido() throws Exception {
 		RestAssuredMockMvc

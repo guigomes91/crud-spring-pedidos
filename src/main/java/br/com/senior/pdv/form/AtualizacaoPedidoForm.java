@@ -18,7 +18,16 @@ public class AtualizacaoPedidoForm {
 	
 	@NotNull @NotEmpty
 	private String status;
+	
+	public AtualizacaoPedidoForm() {}
 
+	public AtualizacaoPedidoForm(@NotNull long cpf, double total, int desconto, @NotNull @NotEmpty String status) {
+		super();
+		this.cpf = cpf;
+		this.total = total;
+		this.desconto = desconto;
+		this.status = status;
+	}
 	public long getCpf() {
 		return cpf;
 	}
