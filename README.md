@@ -7,7 +7,7 @@ Backend de pedidos utilizando Spring, Java 8+, Maven, Postgres, JPA e REST com J
 
 <ol>
     <li>Criar um banco de dados no postgres chamado <b>pdv</b>. Alterar o arquivo <b>application.properties</b> e alterar o parâmetro         <b>spring.datasource.password=postgres</b> para a senha do banco de dados.</li>
-    <li>Subir o backend, execute a classe PdvApplication com botão direto na mesma, **"Run As" -> "Java Application"** no Eclipse.</li>
+    <li>Subir o backend, execute a classe PdvApplication com botão direto na mesma, <b>"Run As" -> "Java Application"</b> no Eclipse.</li>
 </ol>
 
 # Endpoints
