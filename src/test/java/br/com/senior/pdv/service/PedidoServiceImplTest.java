@@ -61,7 +61,6 @@ public class PedidoServiceImplTest {
 		List<PedidoItemDTO> itens = new ArrayList<>();
 		
 		Mockito.when(pedidoItemRepository.consultarPorPedido(uuidPedido)).thenReturn(itens);
-		Mockito.when(service.atualizar(uuidPedido, form)).thenReturn(null);
 		
 		PedidoDTO pedidoDTO = service.atualizar(uuidPedido, form);
 		assertNull(pedidoDTO);
@@ -83,7 +82,6 @@ public class PedidoServiceImplTest {
 		itens.add(new PedidoItemDTO(new PedidoItem(uuid, 2, 100d, 0.0d, item, pedidoEntity)));
 		
 		Mockito.when(pedidoItemRepository.consultarPorPedido(uuidPedido)).thenReturn(itens);
-		Mockito.when(service.atualizar(uuidPedido, form)).thenReturn(null);
 		
 		PedidoDTO pedidoDTO = service.atualizar(uuid, form);
 		assertNull(pedidoDTO);
