@@ -36,52 +36,65 @@ public class PedidoItemController {
 
 	@Autowired
 	PedidoItemServiceImpl service;
-	
+
 	@GetMapping("/listar")
-	public Page<PedidoItemDTO> listar(
-			@RequestParam(required = false) UUID id,
-			@PageableDefault(sort = "item_id", 
-							 direction = Direction.ASC,
-							 page = 0,
-							 size = 10) Pageable paginacao) {
+	public Page<PedidoItemDTO> listar(@RequestParam(required = false) UUID id,
+			@PageableDefault(sort = "item_id", direction = Direction.ASC, page = 0, size = 10) Pageable paginacao) {
 		return service.getPedidoItens(id, paginacao);
 	}
-	
+
 	@GetMapping("/{id}")
-	public ResponseEntity<List<PedidoItemDTO>> listarPorPedido(@PathVariable UUID id) {
+	public ResponseEntity<List<PedidoItemDTO>> listarItemPorPedido(@PathVariable UUID id) {
 		if (id == null) {
 			return ResponseEntity.badRequest().build();
 		}
 		
-		return service.getByPedido(id);
+		List<PedidoItemDTO> itens = service.getByPedido(id);
+		if (itens != null) {
+			return ResponseEntity.ok(itens);
+		}
+		
+		return ResponseEntity.notFound().build();
 	}
-	
+
 	@PostMapping
 	@Transactional
 	public ResponseEntity<PedidoItemDTO> cadastrar(@RequestBody @Valid PedidoItemForm pedidoItemForm,
 			UriComponentsBuilder uriBuilder) {
-		
+
 		PedidoItem pedidoItem = pedidoItemForm.converter();
-		PedidoItemDTO pedidoItemDTO = service.cadastrar(pedidoItem); 
-		
+		PedidoItemDTO pedidoItemDTO = service.cadastrar(pedidoItem);
+
 		if (pedidoItemDTO == null) {
 			return ResponseEntity.badRequest().build();
 		}
-		
+
 		URI uri = uriBuilder.path("/pedidoitem/{id}").buildAndExpand(pedidoItem.getId()).toUri();
 		return ResponseEntity.created(uri).body(new PedidoItemDTO(pedidoItem));
 	}
-	
+
 	@PutMapping("/{id}")
 	@Transactional
 	public ResponseEntity<PedidoItemDTO> atualizar(@PathVariable UUID id,
 			@RequestBody @Valid AtualizacaoPedidoItemForm form) {
-		return service.atualizar(id, form);
+		PedidoItemDTO pedidoItemDTO = service.atualizar(id, form);
+		
+		if (pedidoItemDTO != null) {
+			return ResponseEntity.ok(pedidoItemDTO);
+		}
+		
+		return ResponseEntity.notFound().build(); 
 	}
-	
+
 	@DeleteMapping("/{id}")
 	@Transactional
 	public ResponseEntity<?> deletar(@PathVariable UUID id) {
-		return service.deletar(id);
+		boolean retorno = service.deletar(id);
+		
+		if (retorno) {
+			ResponseEntity.ok().build();
+		}
+		
+		return ResponseEntity.badRequest().build();
 	}
 }

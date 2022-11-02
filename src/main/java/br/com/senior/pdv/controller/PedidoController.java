@@ -1,5 +1,6 @@
 package br.com.senior.pdv.controller;
 
+import java.net.URI;
 import java.util.UUID;
 
 import javax.transaction.Transactional;
@@ -25,6 +26,7 @@ import org.springframework.web.util.UriComponentsBuilder;
 import br.com.senior.pdv.dto.PedidoDTO;
 import br.com.senior.pdv.form.AtualizacaoPedidoForm;
 import br.com.senior.pdv.form.PedidoForm;
+import br.com.senior.pdv.modelo.Pedido;
 import br.com.senior.pdv.service.PedidoServiceImpl;
 
 @RestController
@@ -46,26 +48,58 @@ public class PedidoController {
 	
 	@GetMapping("/{id}")
 	public ResponseEntity<PedidoDTO> listarPorId(@PathVariable UUID id) {
-		return service.getById(id);
+		PedidoDTO pedidoDTO = service.getById(id);
+		
+		if (pedidoDTO == null) {
+			return ResponseEntity.notFound().build();
+		}
+		
+		return ResponseEntity.ok(pedidoDTO);
 	}
 	
 	@PostMapping
 	@Transactional
 	public ResponseEntity<PedidoDTO> cadastrar(@RequestBody @Valid PedidoForm pedidoForm,
 			UriComponentsBuilder uriBuilder) {
-		return service.cadastrar(pedidoForm, uriBuilder); 
+		Pedido pedido = service.cadastrar(pedidoForm);
+		
+		if (pedido != null) {
+			URI uri = uriBuilder.path("/pedido/{id}").buildAndExpand(pedido.getId()).toUri();
+			return ResponseEntity.created(uri).body(new PedidoDTO(pedido));
+		}
+		
+		return ResponseEntity.badRequest().build();
 	}
 	
 	@PutMapping("/{id}")
 	@Transactional
 	public ResponseEntity<PedidoDTO> atualizar(@PathVariable UUID id,
 			@RequestBody @Valid AtualizacaoPedidoForm form) {
-		return service.atualizar(id, form);
+		
+		/**
+		 * Desconto não permitido
+		 */
+		if (form.getDesconto() > 100) {
+			return ResponseEntity.badRequest().build();
+		}
+		
+		PedidoDTO pedidoDTO = service.atualizar(id, form);
+		if (pedidoDTO == null) {
+			return  ResponseEntity.badRequest().build();
+		}
+		
+		return ResponseEntity.ok(pedidoDTO);
 	}
 	
 	@DeleteMapping("/{id}")
 	@Transactional
 	public ResponseEntity<?> deletar(@PathVariable UUID id) {
-		return service.deletar(id);
+		boolean retorno = service.deletar(id);
+		
+		if (retorno) {
+			return ResponseEntity.ok().build();
+		}
+		
+		return ResponseEntity.badRequest().build(); 
 	}
 }

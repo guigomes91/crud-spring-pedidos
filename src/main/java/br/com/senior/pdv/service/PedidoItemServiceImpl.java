@@ -4,12 +4,9 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
-import javax.validation.Valid;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import br.com.senior.pdv.dto.PedidoItemDTO;
@@ -41,6 +38,7 @@ public class PedidoItemServiceImpl {
 	 */
 	public Page<PedidoItemDTO> getPedidoItens(UUID id, Pageable paginacao) {
 		Page<PedidoItem> itensPedido = null;
+		
 		if (id == null) {
 			itensPedido = repository.findAll(paginacao);
 			return PedidoItemDTO.converter(itensPedido);
@@ -55,14 +53,14 @@ public class PedidoItemServiceImpl {
 	 * @param id do pedido
 	 * @return
 	 */
-	public ResponseEntity<List<PedidoItemDTO>> getByPedido(UUID id) {
+	public List<PedidoItemDTO> getByPedido(UUID id) {
 		Optional<Pedido> pedido = pedidoRepository.findById(id);
 		
 		if (pedido.isPresent()) {
-			return ResponseEntity.ok(repository.consultarPorPedido(id));
+			return repository.consultarPorPedido(id);
 		}
 		
-		return ResponseEntity.notFound().build();
+		return null;
 	}
 
 	/**
@@ -109,15 +107,15 @@ public class PedidoItemServiceImpl {
 	 * @param form
 	 * @return
 	 */
-	public ResponseEntity<PedidoItemDTO> atualizar(UUID id, @Valid AtualizacaoPedidoItemForm form) {
+	public PedidoItemDTO atualizar(UUID id, AtualizacaoPedidoItemForm form) {
 		Optional<PedidoItem> optional = repository.findById(id);
 		
 		if (optional.isPresent()) {
 			PedidoItem pedidoItem = form.atualizar(id, repository);
-			return ResponseEntity.ok(new PedidoItemDTO(pedidoItem));
+			return new PedidoItemDTO(pedidoItem);
 		}
 		
-		return ResponseEntity.notFound().build();
+		return null;
 	}
 
 	/**
@@ -125,14 +123,14 @@ public class PedidoItemServiceImpl {
 	 * @param id
 	 * @return
 	 */
-	public ResponseEntity<?> deletar(UUID id) {
+	public boolean deletar(UUID id) {
 		Optional<PedidoItem> optional = repository.findById(id);
 		
 		if (optional.isPresent()) {
 			repository.deleteById(id);
-			return ResponseEntity.ok().build();
+			return true;
 		}
 		
-		return ResponseEntity.notFound().build();
+		return false;
 	}
 }

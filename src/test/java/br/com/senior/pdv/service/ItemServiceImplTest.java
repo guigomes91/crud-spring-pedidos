@@ -91,7 +91,7 @@ public class ItemServiceImplTest {
 		Optional<Item> opcional = Optional.of(new Item());
 		Mockito.when(repository.findById(uuid)).thenReturn(opcional);
 		
-		Mockito.when(pedidoItemRepository.itemEmPedido(uuid)).thenReturn("");
+		Mockito.when(pedidoItemRepository.itemEmPedido(uuid)).thenReturn(null);
 		
 		assertTrue(service.deletar(uuid));
 	}

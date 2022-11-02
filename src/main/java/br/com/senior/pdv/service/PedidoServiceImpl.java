@@ -1,18 +1,13 @@
 package br.com.senior.pdv.service;
 
-import java.net.URI;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
-import javax.validation.Valid;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
-import org.springframework.web.util.UriComponentsBuilder;
 
 import br.com.senior.pdv.dto.PedidoDTO;
 import br.com.senior.pdv.dto.PedidoItemDTO;
@@ -44,6 +39,7 @@ public class PedidoServiceImpl {
 	 */
 	public Page<PedidoDTO> getPedidos(UUID id, Pageable paginacao) {
 		Page<Pedido> pedidos = null;
+		
 		if (id == null) {
 			pedidos = pedidoRepository.findAll(paginacao);
 			return PedidoDTO.converter(pedidos);
@@ -56,56 +52,67 @@ public class PedidoServiceImpl {
 	/**
 	 * 
 	 * @param id
-	 * @return
+	 * @return PedidoDTO
 	 */
-	public ResponseEntity<PedidoDTO> getById(UUID id) {
+	public PedidoDTO getById(UUID id) {
 		Optional<Pedido> pedido = pedidoRepository.findById(id);
 		
 		if (pedido.isPresent()) {
-			return ResponseEntity.ok(new PedidoDTO(pedido.get()));
+			return new PedidoDTO(pedido.get());
 		}
 		
-		return ResponseEntity.notFound().build();
+		return null;
 	}
 
 	/**
 	 * 
 	 * @param pedidoForm
 	 * @param uriBuilder
-	 * @return
+	 * @return Pedido
 	 */
-	public ResponseEntity<PedidoDTO> cadastrar(@Valid PedidoForm pedidoForm, UriComponentsBuilder uriBuilder) {
+	public Pedido cadastrar(PedidoForm pedidoForm) {
 		Pedido pedido = pedidoForm.converter();
 		pedidoRepository.save(pedido);
 		
-		URI uri = uriBuilder.path("/pedido/{id}").buildAndExpand(pedido.getId()).toUri();
-		return ResponseEntity.created(uri).body(new PedidoDTO(pedido)); 
+		return pedido;
 	}
 
 	/**
 	 * 
 	 * @param id
 	 * @param form
-	 * @return
+	 * @return PedidoDTO
 	 */
-	public ResponseEntity<PedidoDTO> atualizar(UUID id, @Valid AtualizacaoPedidoForm form) {
+	public PedidoDTO atualizar(UUID id, AtualizacaoPedidoForm form) {
 		Optional<Pedido> optional = pedidoRepository.findById(id);
 		List<PedidoItemDTO> itens = pedidoItemRepository.consultarPorPedido(id);
 		
+		/**
+		 * Verifica se existe o pedido cadastrado e se o desconto foi informado
+		 * e se não existe item no pedido, não é permitido o desconto
+		 */
 		if (optional.isPresent()) {
 			if (form.getDesconto() > 0 
-					&& itens.size() < 0) {
-				return ResponseEntity.notFound().build();
+					&& itens.isEmpty()) {
+				return null;
 			}
 			
+			/**
+			 * Se situação não estiver em ABERTO e desconto foi informado
+			 * não é permitido o desconto
+			 */
 			if (!form.getStatus().equals("ABERTO") && form.getDesconto() > 0) {
-				return ResponseEntity.badRequest().build();
+				return null;
 			}
 			
 			double totalDeDesconto = 0.0d, 
 				   totalDoPedido = form.getTotal();
 			
-			if (form.getDesconto() > 0 && itens.size() >= 0) {
+			/**
+			 * Desconto foi informado e existe itens no pedido
+			 * Realiza o desconto em cima do valor total dos itens
+			 */
+			if (form.getDesconto() > 0 && !itens.isEmpty()) {
 				double percentualDesconto = (Double.valueOf(form.getDesconto()) / 100d),
 						valorDoDesconto = 0.0, totalMenosDesconto = 0.0;
 				
@@ -127,10 +134,10 @@ public class PedidoServiceImpl {
 			totalDoPedido = totalDoPedido - totalDeDesconto;
 			form.setTotal(totalDeDesconto == 0 ? form.getTotal() : totalDoPedido);
 			Pedido pedido = form.atualizar(id, pedidoRepository);
-			return ResponseEntity.ok(new PedidoDTO(pedido));
+			return new PedidoDTO(pedido);
 		}		
 		
-		return ResponseEntity.notFound().build();
+		return null;
 	}
 
 	/**
@@ -138,15 +145,19 @@ public class PedidoServiceImpl {
 	 * @param id
 	 * @return
 	 */
-	public ResponseEntity<?> deletar(UUID id) {
+	public boolean deletar(UUID id) {
 		Optional<Pedido> optional = pedidoRepository.findById(id);
+		Pedido pedido = optional.get();
 		
-		if (optional.isPresent()) {
-			pedidoRepository.deleteById(id);
-			return ResponseEntity.ok().build();
-		}
+		/**
+		 * Não é permitido excluir pedido quando situação não esta em "ABERTO"
+		 */
+		if (optional.isPresent() && !pedido.getStatus().equals("ABERTO")) {
+			return false;
+		} 
 		
-		return ResponseEntity.notFound().build();
+		pedidoRepository.deleteById(id);
+		return true;
 	}
 
 }

@@ -10,7 +10,6 @@ import org.mockito.Mockito;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 
 import br.com.senior.pdv.dto.PedidoItemDTO;
 import br.com.senior.pdv.repository.ItemRepository;
@@ -52,7 +51,7 @@ public class PedidoItemControllerTest {
 		result.add(new PedidoItemDTO());
 		result.add(new PedidoItemDTO());
 		
-		Mockito.when(pedidoItemService.getByPedido(uuid)).thenReturn(ResponseEntity.ok(result));
+		Mockito.when(pedidoItemService.getByPedido(uuid)).thenReturn(result);
 		
 		RestAssuredMockMvc.given()
 			.accept(ContentType.JSON)
@@ -61,6 +60,25 @@ public class PedidoItemControllerTest {
 		.then() 
 			.statusCode(HttpStatus.OK.value());
 	}
+	
+	/*@Test
+	public void deveRetornarNaoEncontrado_QuandoBuscarItensDoPedido() throws Exception {
+		UUID uuid = UUID.fromString("0ef8a0ea-e716-41ef-8a7e-c256bde8468c");
+		
+		List<PedidoItemDTO> result = new ArrayList<>();
+		result.add(new PedidoItemDTO());
+		result.add(new PedidoItemDTO());
+		result.add(new PedidoItemDTO());
+		
+		Mockito.when(pedidoItemService.getByPedido(uuid)).thenReturn(null);
+		
+		RestAssuredMockMvc.given()
+			.accept(ContentType.JSON)
+		.when()
+			.get("/pedidoitem/{id}", uuid)
+		.then() 
+			.statusCode(HttpStatus.NOT_FOUND.value());
+	}*/
 	
 	@Test
 	public void deveRetornarNotAllowed_QuandoBuscarItensDoPedido() throws Exception {

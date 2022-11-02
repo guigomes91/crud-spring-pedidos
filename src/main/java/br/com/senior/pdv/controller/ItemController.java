@@ -1,5 +1,6 @@
 package br.com.senior.pdv.controller;
 
+import java.net.URI;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -60,7 +61,15 @@ public class ItemController {
 	@Transactional
 	public ResponseEntity<ItemDTO> cadastrar(@RequestBody @Valid ItemForm itemForm,
 			UriComponentsBuilder uriBuilder) {
-		return service.cadastrar(itemForm, uriBuilder); 
+		
+		Item item = service.cadastrar(itemForm);
+		
+		if (item == null) {
+			return ResponseEntity.badRequest().build();
+		}
+		
+		URI uri = uriBuilder.path("/item/{id}").buildAndExpand(item.getId()).toUri();
+		return ResponseEntity.created(uri).body(new ItemDTO(item)); 
 	}
 	
 	@PutMapping("/{id}")
@@ -79,9 +88,9 @@ public class ItemController {
 	@DeleteMapping("/{id}")
 	@Transactional
 	public ResponseEntity<?> deletar(@PathVariable UUID id) {
-		boolean status = service.deletar(id);
+		boolean retorno = service.deletar(id);
 		
-		if (status) {
+		if (retorno) {
 			return ResponseEntity.ok().build();
 		}
 		

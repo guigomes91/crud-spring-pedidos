@@ -1,15 +1,12 @@
 package br.com.senior.pdv.service;
 
-import java.net.URI;
 import java.util.Optional;
 import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
-import org.springframework.web.util.UriComponentsBuilder;
 
 import br.com.senior.pdv.dto.ItemDTO;
 import br.com.senior.pdv.form.ItemForm;
@@ -57,15 +54,13 @@ public class ItemServiceImpl {
 	 * 
 	 * @param itemForm
 	 * @param uriBuilder
-	 * @return ItemDTO como corpo da resposta da requisição
+	 * @return Item
 	 */
-	public ResponseEntity<ItemDTO> cadastrar(ItemForm itemForm,
-			UriComponentsBuilder uriBuilder) {
+	public Item cadastrar(ItemForm itemForm) {
 		Item item = itemForm.converter();
 		repository.save(item);
 		
-		URI uri = uriBuilder.path("/item/{id}").buildAndExpand(item.getId()).toUri();
-		return ResponseEntity.created(uri).body(new ItemDTO(item)); 
+		return item;
 	}
 	
 	/**
@@ -94,7 +89,7 @@ public class ItemServiceImpl {
 		Optional<Item> optional = repository.findById(id);
 		String itemEmPedido = pedidoItemRepository.itemEmPedido(id);
 		
-		if (optional.isPresent() && itemEmPedido.isEmpty()) {
+		if (optional.isPresent() && itemEmPedido == null) {
 			repository.deleteById(id);
 			return true;
 		}
